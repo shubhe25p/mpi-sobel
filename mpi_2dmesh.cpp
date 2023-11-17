@@ -501,7 +501,7 @@ sobelAllTiles(int myrank, vector < vector < Tile2D > > & tileArray) {
 }
 
 void
-scatterAllTiles(int myrank, vector < vector < Tile2D > > & tileArray, float *s, int global_width, int global_height)
+scatterAllTiles(int myrank, vector < vector < Tile2D > > & tileArray, float *s, int global_width, int global_height, int &numMessage, double &messageSize)
 {
 
 #if DEBUG_TRACE
@@ -541,6 +541,8 @@ scatterAllTiles(int myrank, vector < vector < Tile2D > > & tileArray, float *s, 
                      t->xloc, t->yloc, // offset into the send buffer
                      t->width, t->height,  // size of the buffer to send,
                      myrank, t->tileRank);
+               numMessage++;
+               messageSize += t->width*t->height*sizeof(float);
             }
             else // rather then have rank 0 send to rank 0, just do a strided copy into a tile's input buffer
             {
@@ -571,7 +573,7 @@ scatterAllTiles(int myrank, vector < vector < Tile2D > > & tileArray, float *s, 
 }
 
 void
-gatherAllTiles(int myrank, vector < vector < Tile2D > > & tileArray, float *d, int global_width, int global_height)
+gatherAllTiles(int myrank, vector < vector < Tile2D > > & tileArray, float *d, int global_width, int global_height, int &numMessage, double &messageSize)
 {
 
    for (int row=0;row<tileArray.size(); row++)
@@ -592,6 +594,8 @@ gatherAllTiles(int myrank, vector < vector < Tile2D > > & tileArray, float *d, i
                0, 0, // offset into the send buffer
                t->width, t->height,  // size of the buffer to send,
                t->tileRank, 0);   // from rank, to rank
+            numMessage++;
+            messageSize += t->width*t->height*sizeof(float);
          }
          else if (myrank == 0)
          {
@@ -632,7 +636,8 @@ int main(int ac, char *av[]) {
    int myrank, nranks; 
    MPI_Comm_rank( MPI_COMM_WORLD, &myrank);
    MPI_Comm_size( MPI_COMM_WORLD, &nranks);
-
+   int numMessage=0;
+   double messageSize=0.0;
    as.myrank = myrank;
    as.nranks = nranks;
 
@@ -686,7 +691,7 @@ int main(int ac, char *av[]) {
       // start the timer
       start_time = std::chrono::high_resolution_clock::now();
 
-      scatterAllTiles(as.myrank, tileArray, as.input_data_floats.data(), as.global_mesh_size[0], as.global_mesh_size[1]);
+      scatterAllTiles(as.myrank, tileArray, as.input_data_floats.data(), as.global_mesh_size[0], as.global_mesh_size[1], numMessage, messageSize);
 
       // end the timer
       MPI_Barrier(MPI_COMM_WORLD);
@@ -721,7 +726,7 @@ int main(int ac, char *av[]) {
       // start the timer
       start_time = std::chrono::high_resolution_clock::now();
 
-      gatherAllTiles(as.myrank, tileArray, as.output_data_floats.data(), as.global_mesh_size[0], as.global_mesh_size[1]);
+      gatherAllTiles(as.myrank, tileArray, as.output_data_floats.data(), as.global_mesh_size[0], as.global_mesh_size[1], numMessage, messageSize);
 
       // end the timer
       MPI_Barrier(MPI_COMM_WORLD);
@@ -743,6 +748,8 @@ int main(int ac, char *av[]) {
       printf("\tScatter time:\t%6.4f (ms) \n", elapsed_scatter_time*1000.0);
       printf("\tSobel time:\t%6.4f (ms) \n", elapsed_sobel_time*1000.0);
       printf("\tGather time:\t%6.4f (ms) \n", elapsed_gather_time*1000.0);
+      printf("\tNumber of messages sent:\t%d \n", numMessage);
+      printf("\tTotal message size:\t%6.4f (MB) \n", messageSize/(1024.0*1024.0));
    }
 
    MPI_Finalize();
