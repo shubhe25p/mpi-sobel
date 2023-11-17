@@ -385,10 +385,16 @@ sendStridedBuffer(float *srcBuf,
    // Your code needs to send a subregion of srcBuf, where the subregion is of size
    // sendWidth by sendHeight values, and the subregion is offset from the origin of
    // srcBuf by the values specificed by srcOffsetColumn, srcOffsetRow.
+   int globalSize[2] = {srcWidth, srcHeight};
+   int startOffset[2] = {srcOffsetRow, srcOffsetColumn};
+   int subRegionSize[2] = {sendWidth, sendHeight};
 
-   MPI_Send(srcBuf, sendHeight*sendWidth, MPI_FLOAT, toRank, msgTag, MPI_COMM_WORLD);
-   //
-
+   MPI_Datatype subRegionType;
+   MPI_Type_create_subarray(2, globalSize, subRegionSize, startOffset, MPI_ORDER_C, MPI_FLOAT, &subRegionType);
+   MPI_Type_commit(&subRegionType);
+   
+   MPI_Send(srcBuf, 1, subRegionType, toRank, msgTag, MPI_COMM_WORLD);
+   MPI_Type_free(&subRegionType);
 }
 
 void
@@ -409,7 +415,16 @@ recvStridedBuffer(float *dstBuf,
    // values. This incoming data is to be placed into the subregion of dstBuf that has an origin
    // at dstOffsetColumn, dstOffsetRow, and that is expectedWidth, expectedHeight in size.
    //
-   MPI_Recv(dstBuf, expectedHeight*expectedWidth, MPI_FLOAT, fromRank, msgTag, MPI_COMM_WORLD, &stat);
+   int globalSize[2] = {dstWidth, dstHeight};
+   int startOffset[2] = {dstOffsetRow, dstOffsetColumn};
+   int subRegionSize[2] = {expectedWidth, expectedHeight};
+
+   MPI_Datatype subRegionType;
+   MPI_Type_create_subarray(2, globalSize, subRegionSize, startOffset, MPI_ORDER_C, MPI_FLOAT, &subRegionType);
+   MPI_Type_commit(&subRegionType);
+   
+   MPI_Recv(dstBuf, 1, subRegionType, fromRank, msgTag, MPI_COMM_WORLD, &stat);
+   MPI_Type_free(&subRegionType);
 
 }
 
@@ -419,19 +434,34 @@ recvStridedBuffer(float *dstBuf,
 // that performs sobel filtering
 // suggest using your cpu code from HW5, no OpenMP parallelism 
 //
-// void sobel_filtered_pixel(float *s, int i, int j, int dims[], float *gx, float *gy){
-//    if (i = 1 || i > dims[0] - 2 || j < 1 || j > dims[1] - 2)
-//       return 0.0;
-//    int s_indx = (j - 1) * dims[0] + i - 1;
-//    double g_x = 0.0, g_y = 0.0;
-//    for (int jj = 0; jj < 3; jj++, s_indx += dims[0])
-//       for (int ii = 0; ii < 3; ii++)
-//       {
-//          g_x += (s[s_indx + ii] * gx[jj * 3 + ii]);
-//          g_y += (s[s_indx + ii] * gy[jj * 3 + ii]);
-//       }
-//    return ((float)(sqrt(g_x * g_x + g_y * g_y)));
-// }
+void sobel_filtered_pixel(float *s, int i, int j, int dims[], float *gx, float *gy){
+   if (i = 1 || i > dims[0] - 2 || j < 1 || j > dims[1] - 2)
+      return 0.0;
+   int s_indx = (j - 1) * dims[0] + i - 1;
+   double g_x = 0.0, g_y = 0.0;
+   for (int jj = 0; jj < 3; jj++, s_indx += dims[0])
+      for (int ii = 0; ii < 3; ii++)
+      {
+         g_x += (s[s_indx + ii] * gx[jj * 3 + ii]);
+         g_y += (s[s_indx + ii] * gy[jj * 3 + ii]);
+      }
+   return ((float)(sqrt(g_x * g_x + g_y * g_y)));
+}
+
+do_sobel_filtering(float *in, float *out, int ncols, int nrows)
+{
+   float Gx[] = {1.0, 0.0, -1.0, 2.0, 0.0, -2.0, 1.0, 0.0, -1.0};
+   float Gy[] = {1.0, 2.0, 1.0, 0.0, 0.0, 0.0, -1.0, -2.0, -1.0};
+
+   // ADD CODE HERE: insert your code here that iterates over every (i,j) of input,  makes a call
+   // to sobel_filtered_pixel, and assigns the resulting value at location (i,j) in the output.
+   for(int i=0;i<nrows;i++){
+      for(int j=0;j<ncols;j++){
+         out[i*ncols+j] = sobel_filtered_pixel(in, i, j, ncols, nrows, Gx, Gy);
+      }
+   }
+}
+
 
 void
 sobelAllTiles(int myrank, vector < vector < Tile2D > > & tileArray) {
@@ -454,18 +484,7 @@ sobelAllTiles(int myrank, vector < vector < Tile2D > > & tileArray) {
 #endif
          // ADD YOUR CODE HERE
          // to call your sobel filtering code on each tile
-         // t->inputBuffer.resize(t->width*t->height);
-         // t->outputBuffer.resize(t->width*t->height);
-         // float Gx[] = {1.0, 0.0, -1.0, 2.0, 0.0, -2.0, 1.0, 0.0, -1.0};
-         // float Gy[] = {1.0, 2.0, 1.0, 0.0, 0.0, 0.0, -1.0, -2.0, -1.0};
-
-         // for (int jj = 0; jj < t.height; jj++)
-         // {
-         //    for (int ii = 0; ii < t.width; ii++)
-         //       {
-         //          t->outputBuffer.data()[ii*t.width+jj] = sobel_filtered_pixel(t->inputBuffer.data(), ii, jj, [t.width, t.height], Gx, Gy);
-         //       }
-         // }
+         do_sobel_filtering(t->inputBuffer.data(), t->outputBuffer.data(), t->width, t->height)
 
          }
       }
