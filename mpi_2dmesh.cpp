@@ -142,14 +142,18 @@ computeMeshDecomposition(AppState *as, vector < vector < Tile2D > > *tileArray) 
          ylocs[i] = yval;
       }
       ylocs[ytiles] = as->global_mesh_size[1];
-
+      int ghost_xmin = 0;
+      int ghost_xmax = 0;
+      int ghost_ymin = 0;
+      int ghost_ymax = 0;
       // then, create tiles along the y axis
       for (int i=0; i<ytiles; i++)
       {
          vector < Tile2D > tiles;
          int width =  as->global_mesh_size[0];
          int height = ylocs[i+1]-ylocs[i];
-         Tile2D t = Tile2D(0, ylocs[i], width, height, i);
+
+         Tile2D t = Tile2D(0, ylocs[i], width, height, i, ghost_xmin, ghost_xmax, ghost_ymin, ghost_ymax);
          tiles.push_back(t);
          tileArray->push_back(tiles);
       }
@@ -172,11 +176,15 @@ computeMeshDecomposition(AppState *as, vector < vector < Tile2D > > *tileArray) 
 
       // then, create tiles along the x axis
       vector < Tile2D > tile_row;
+      int ghost_xmin = 0;
+      int ghost_xmax = 0;
+      int ghost_ymin = 0;
+      int ghost_ymax = 0;
       for (int i=0; i<xtiles; i++)
       {
          int width =  xlocs[i+1]-xlocs[i];
          int height = as->global_mesh_size[1];
-         Tile2D t = Tile2D(xlocs[i], 0, width, height, i);
+         Tile2D t = Tile2D(xlocs[i], 0, width, height, i, ghost_xmin, ghost_xmax, ghost_ymin, ghost_ymax);
          tile_row.push_back(t);
       }
       tileArray->push_back(tile_row);
