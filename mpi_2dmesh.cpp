@@ -434,18 +434,26 @@ recvStridedBuffer(float *dstBuf,
 // that performs sobel filtering
 // suggest using your cpu code from HW5, no OpenMP parallelism 
 //
-float sobel_filtered_pixel(float *s, int i, int j, int dims[], float *gx, float *gy){
-   if (i = 1 || i > dims[0] - 2 || j < 1 || j > dims[1] - 2)
-      return 0.0;
-   int s_indx = (j - 1) * dims[0] + i - 1;
-   double g_x = 0.0, g_y = 0.0;
-   for (int jj = 0; jj < 3; jj++, s_indx += dims[0])
-      for (int ii = 0; ii < 3; ii++)
-      {
-         g_x += (s[s_indx + ii] * gx[jj * 3 + ii]);
-         g_y += (s[s_indx + ii] * gy[jj * 3 + ii]);
-      }
-   return ((float)(sqrt(g_x * g_x + g_y * g_y)));
+float sobel_filtered_pixel(float *s, int i, int j, int ncols, int nrows, float *gx, float *gy){
+    float t=0.0;
+
+   // ADD CODE HERE: add your code here for computing the sobel stencil computation at location (i,j)
+   // of input s, returning a float
+   float gradx = ((j - 1 >= 0)? s[i * ncols + j - 1] * gx[3] : 0.0) + 
+                 ((i - 1 >=0 && j -1 >=0) ? s[i * ncols + j - 1 - ncols] * gx[0] : 0.0) + 
+                 ((i + 1 < nrows && j -1 >=0)? s[i * ncols + j - 1 + ncols] * gx[6] : 0.0) + 
+                 ((j + 1 <ncols)? s[i * ncols + j + 1] * gx[5] : 0.0) + 
+                 ((i + 1 < nrows && j + 1 <ncols)? s[i * ncols + j + 1 + ncols] * gx[8] : 0.0) +
+                ((i - 1 >=0 && j + 1 <ncols)? s[i * ncols + j + 1 - ncols] * gx[2]: 0.0);
+
+   float grady = ((i - 1 >=0) ? s[i * ncols + j - ncols] * gy[1] : 0.0) + 
+                 ((i + 1 < nrows)? s[i * ncols + j + ncols] * gy[7] : 0.0) + 
+                 ((i - 1 >=0 && j - 1 >=0)? s[i * ncols + j - 1 - ncols] * gy[0] : 0.0) + 
+                 ((i + 1 < nrows && j -1 >=0)? s[i * ncols + j - 1 + ncols] * gy[6] : 0.0) + 
+                 ((i + 1 < nrows && j + 1 <ncols)? s[i * ncols + j + 1 + ncols] * gy[8] : 0.0) +
+                 ((i - 1 >=0 && j + 1 <ncols)? s[i * ncols + j + 1 - ncols] * gy[2] : 0.0);
+   
+   t = sqrt((gradx*gradx) + (grady*grady));
 }
 
 void do_sobel_filtering(float *in, float *out, int ncols, int nrows)
@@ -455,10 +463,9 @@ void do_sobel_filtering(float *in, float *out, int ncols, int nrows)
 
    // ADD CODE HERE: insert your code here that iterates over every (i,j) of input,  makes a call
    // to sobel_filtered_pixel, and assigns the resulting value at location (i,j) in the output.
-   int dims[2] = {ncols, nrows};
    for(int i=0;i<nrows;i++){
       for(int j=0;j<ncols;j++){
-         out[i*ncols+j] = sobel_filtered_pixel(in, i, j, dims, Gx, Gy);
+         out[i*ncols+j] = sobel_filtered_pixel(in, i, j, ncols, nrows, Gx, Gy);
       }
    }
 }
