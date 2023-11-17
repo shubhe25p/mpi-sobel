@@ -229,22 +229,23 @@ computeMeshDecomposition(AppState *as, vector < vector < Tile2D > > *tileArray) 
             int ghost_xmin, ghost_xmax, ghost_ymin, ghost_ymax;
             width = xlocs[i+1]-xlocs[i];
             height = ylocs[j+1]-ylocs[j];
-            if(ylocs[i]==0 && xlocs[i]==0){
-               ghost_xmax=1;
-               ghost_ymax=1;
+            if(j==0 && i==0){
                ghost_xmin=0;
+               ghost_xmax=1;
                ghost_ymin=0;
+               ghost_ymax=1;
             }
-            else if(ylocs[i]==0 && xlocs[i]!=xlocs[xtiles-1]){
+            else if(j==0 && i!=(xtiles-1)){
                // sendHeight++;
                // sendWidth+=2;
                // xlocs[i]--;
                ghost_xmin=1;
                ghost_xmax=1;
-               ghost_ymax=1;
                ghost_ymin=0;
+               ghost_ymax=1;
+
             }
-            else if(ylocs[i]==0 && xlocs[i]==xlocs[xtiles-1]){
+            else if(j==0 && i==(xtiles-1)){
                // sendHeight++;
                // sendWidth++;
                // xlocs[i]--;
@@ -253,7 +254,7 @@ computeMeshDecomposition(AppState *as, vector < vector < Tile2D > > *tileArray) 
                ghost_ymin=0;
                ghost_ymax=1;
             }
-            else if(xlocs[i]==0 && ylocs[i] == ylocs[ytiles-1]){
+            else if(i==0 && j==(ytiles-1)){
                // ylocs[i]--;
                // sendHeight++;
                // sendWidth++;
@@ -262,7 +263,7 @@ computeMeshDecomposition(AppState *as, vector < vector < Tile2D > > *tileArray) 
                ghost_ymin=1;
                ghost_ymax=0;
             }
-            else if(xlocs[i]==0 && ylocs[i] != ylocs[ytiles-1]){
+            else if(i==0 && j != (ytiles-1)){
                // ylocs[i]--;
                // sendHeight+=2;
                // sendWidth++;
@@ -271,7 +272,7 @@ computeMeshDecomposition(AppState *as, vector < vector < Tile2D > > *tileArray) 
                ghost_ymin=1;
                ghost_ymax=1;
             }
-            else if(ylocs[i]==ylocs[ytiles-1] && xlocs[i]!=xlocs[xtiles-1]){
+            else if(j==(ytiles-1) && i!=(xtiles-1)){
                // sendWidth+=2;
                // sendHeight++;
                // xlocs[i]--;
@@ -281,7 +282,7 @@ computeMeshDecomposition(AppState *as, vector < vector < Tile2D > > *tileArray) 
                ghost_ymin=1;
                ghost_ymax=0;
             }
-            else if(xlocs[i]==xlocs[xtiles-1] && ylocs[i]!=ylocs[ytiles-1]){
+            else if(i==(xtiles-1) && j!=(ytiles-1)){
                // sendHeight+=2;
                // sendWidth++;
                // xlocs[i]--;
@@ -291,7 +292,7 @@ computeMeshDecomposition(AppState *as, vector < vector < Tile2D > > *tileArray) 
                ghost_ymin=1;
                ghost_ymax=1;
             }
-            else if(xlocs[i]==xlocs[xtiles-1] && ylocs[i]==ylocs[ytiles-1]){
+            else if(i==(xtiles-1) && j==(ytiles-1)){
                // sendHeight++;
                // sendWidth++;
                // ylocs[i]--;
