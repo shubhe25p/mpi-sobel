@@ -385,9 +385,9 @@ sendStridedBuffer(float *srcBuf,
    // Your code needs to send a subregion of srcBuf, where the subregion is of size
    // sendWidth by sendHeight values, and the subregion is offset from the origin of
    // srcBuf by the values specificed by srcOffsetColumn, srcOffsetRow.
-   int globalSize[2] = {srcWidth, srcHeight};
+   int globalSize[2] = {srcHeight, srcWidth};
    int startOffset[2] = {srcOffsetRow, srcOffsetColumn};
-   int subRegionSize[2] = {sendWidth, sendHeight};
+   int subRegionSize[2] = {sendHeight, sendWidth};
 
    MPI_Datatype subRegionType;
    MPI_Type_create_subarray(2, globalSize, subRegionSize, startOffset, MPI_ORDER_C, MPI_FLOAT, &subRegionType);
@@ -415,9 +415,9 @@ recvStridedBuffer(float *dstBuf,
    // values. This incoming data is to be placed into the subregion of dstBuf that has an origin
    // at dstOffsetColumn, dstOffsetRow, and that is expectedWidth, expectedHeight in size.
    //
-   int globalSize[2] = {dstWidth, dstHeight};
+   int globalSize[2] = {dstHeight, dstWidth};
    int startOffset[2] = {dstOffsetRow, dstOffsetColumn};
-   int subRegionSize[2] = {expectedWidth, expectedHeight};
+   int subRegionSize[2] = {expectedHeight, expectedWidth};
 
    MPI_Datatype subRegionType;
    MPI_Type_create_subarray(2, globalSize, subRegionSize, startOffset, MPI_ORDER_C, MPI_FLOAT, &subRegionType);
@@ -455,7 +455,7 @@ void do_sobel_filtering(float *in, float *out, int ncols, int nrows)
 
    // ADD CODE HERE: insert your code here that iterates over every (i,j) of input,  makes a call
    // to sobel_filtered_pixel, and assigns the resulting value at location (i,j) in the output.
-   int dims[2] = {ncols, nrows}
+   int dims[2] = {ncols, nrows};
    for(int i=0;i<nrows;i++){
       for(int j=0;j<ncols;j++){
          out[i*ncols+j] = sobel_filtered_pixel(in, i, j, dims, Gx, Gy);
