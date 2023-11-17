@@ -86,17 +86,17 @@ class Tile2D
    vector <float> outputBuffer;
 
    // the constructor takes args that set the tile size and location in the overall mesh
-   Tile2D(int tx, int ty, int xsize, int ysize, int rank, int ghost_xmin, int ghost_xmax, int ghost_ymin, int ghost_ymax)
+   Tile2D(int tx, int ty, int xsize, int ysize, int rank, int xmin, int xmax, int ymin, int ymax)
    {
       xloc = tx;  // tx,ty specify the origin of the tile in the overall global grid
       yloc = ty;
       width = xsize;  // specify the width, height of the tile's base grid/buffer
       height = ysize;
       tileRank = rank;
-      ghost_xmin = ghost_xmin;
-      ghost_xmax = ghost_xmax;
-      ghost_ymin = ghost_ymin;
-      ghost_ymax = ghost_ymax;
+      ghost_xmin = xmin;
+      ghost_xmax = xmax;
+      ghost_ymin = ymin;
+      ghost_ymax = ymax;
 
       inputBuffer.resize(0); // start with empty tiles
       outputBuffer.resize(0);
