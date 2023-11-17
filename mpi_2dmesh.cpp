@@ -434,7 +434,7 @@ recvStridedBuffer(float *dstBuf,
 // that performs sobel filtering
 // suggest using your cpu code from HW5, no OpenMP parallelism 
 //
-void sobel_filtered_pixel(float *s, int i, int j, int dims[], float *gx, float *gy){
+float sobel_filtered_pixel(float *s, int i, int j, int dims[], float *gx, float *gy){
    if (i = 1 || i > dims[0] - 2 || j < 1 || j > dims[1] - 2)
       return 0.0;
    int s_indx = (j - 1) * dims[0] + i - 1;
@@ -448,7 +448,7 @@ void sobel_filtered_pixel(float *s, int i, int j, int dims[], float *gx, float *
    return ((float)(sqrt(g_x * g_x + g_y * g_y)));
 }
 
-do_sobel_filtering(float *in, float *out, int ncols, int nrows)
+void do_sobel_filtering(float *in, float *out, int ncols, int nrows)
 {
    float Gx[] = {1.0, 0.0, -1.0, 2.0, 0.0, -2.0, 1.0, 0.0, -1.0};
    float Gy[] = {1.0, 2.0, 1.0, 0.0, 0.0, 0.0, -1.0, -2.0, -1.0};
@@ -457,7 +457,7 @@ do_sobel_filtering(float *in, float *out, int ncols, int nrows)
    // to sobel_filtered_pixel, and assigns the resulting value at location (i,j) in the output.
    for(int i=0;i<nrows;i++){
       for(int j=0;j<ncols;j++){
-         out[i*ncols+j] = sobel_filtered_pixel(in, i, j, ncols, nrows, Gx, Gy);
+         out[i*ncols+j] = sobel_filtered_pixel(in, i, j, *ncols, *nrows, Gx, Gy);
       }
    }
 }
@@ -484,8 +484,8 @@ sobelAllTiles(int myrank, vector < vector < Tile2D > > & tileArray) {
 #endif
          // ADD YOUR CODE HERE
          // to call your sobel filtering code on each tile
-         do_sobel_filtering(t->inputBuffer.data(), t->outputBuffer.data(), t->width, t->height)
 
+         do_sobel_filtering(t->inputBuffer.data(), t->outputBuffer.data(), t->width, t->height);
          }
       }
    }
