@@ -218,9 +218,92 @@ computeMeshDecomposition(AppState *as, vector < vector < Tile2D > > *tileArray) 
          vector < Tile2D > tile_row;
          for (int i=0; i < xtiles; i++) {
             int width, height;
+            int ghost_xmin, ghost_xmax, ghost_ymin, ghost_ymax;
             width = xlocs[i+1]-xlocs[i];
             height = ylocs[j+1]-ylocs[j];
-            Tile2D t = Tile2D(xlocs[i], ylocs[j], width, height, rank++);
+            if(ylocs[i]==0 && xlocs[i]==0){
+               ghost_xmax=1;
+               ghost_ymax=1;
+               ghost_xmin=0;
+               ghost_ymin=0;
+            }
+            else if(ylocs[i]==0 && xlocs[i]!=xlocs[xtiles-1]){
+               // sendHeight++;
+               // sendWidth+=2;
+               // xlocs[i]--;
+               ghost_xmin=1;
+               ghost_xmax=1;
+               ghost_ymax=1;
+               ghost_ymin=0;
+            }
+            else if(ylocs[i]==0 && xlocs[i]==xlocs[xtiles-1]){
+               // sendHeight++;
+               // sendWidth++;
+               // xlocs[i]--;
+               ghost_xmin=1;
+               ghost_xmax=0;
+               ghost_ymin=0;
+               ghost_ymax=1;
+            }
+            else if(xlocs[i]==0 && ylocs[i] == ylocs[ytiles-1]){
+               // ylocs[i]--;
+               // sendHeight++;
+               // sendWidth++;
+               ghost_xmin=0;
+               ghost_xmax=1;
+               ghost_ymin=1;
+               ghost_ymax=0;
+            }
+            else if(xlocs[i]==0 && ylocs[i] != ylocs[ytiles-1]){
+               // ylocs[i]--;
+               // sendHeight+=2;
+               // sendWidth++;
+               ghost_xmin=0;
+               ghost_xmax=1;
+               ghost_ymin=1;
+               ghost_ymax=1;
+            }
+            else if(ylocs[i]==ylocs[ytiles-1] && xlocs[i]!=xlocs[xtiles-1]){
+               // sendWidth+=2;
+               // sendHeight++;
+               // xlocs[i]--;
+               // ylocs[i]--;
+               ghost_xmin=1;
+               ghost_xmax=1;
+               ghost_ymin=1;
+               ghost_ymax=0;
+            }
+            else if(xlocs[i]==xlocs[xtiles-1] && ylocs[i]!=ylocs[ytiles-1]){
+               // sendHeight+=2;
+               // sendWidth++;
+               // xlocs[i]--;
+               // ylocs[i]--;
+               ghost_xmin=1;
+               ghost_xmax=0;
+               ghost_ymin=1;
+               ghost_ymax=1;
+            }
+            else if(xlocs[i]==xlocs[xtiles-1] && ylocs[i]==ylocs[ytiles-1]){
+               // sendHeight++;
+               // sendWidth++;
+               // ylocs[i]--;
+               // xlocs[i]--;
+               ghost_xmin=1;
+               ghost_xmax=0;
+               ghost_ymin=1;
+               ghost_ymax=0;
+            }
+            else{
+               // sendHeight+=2;
+               // sendWidth+=2;
+               // xlocs[i]--;
+               // ylocs[i]--;
+               ghost_xmin=1;
+               ghost_xmax=1;
+               ghost_ymin=1;
+               ghost_ymax=1;
+            }
+            Tile2D t = Tile2D(xlocs[i], ylocs[j], width, height, rank++, ghost_xmin, ghost_xmax, ghost_ymin, ghost_ymax);
             tile_row.push_back(t);
          }
          tileArray->push_back(tile_row);
@@ -385,10 +468,61 @@ sendStridedBuffer(float *srcBuf,
    // Your code needs to send a subregion of srcBuf, where the subregion is of size
    // sendWidth by sendHeight values, and the subregion is offset from the origin of
    // srcBuf by the values specificed by srcOffsetColumn, srcOffsetRow.
+   
+
+   // if(srcOffsetRow==0 && srcOffsetColumn==0){
+   //    sendHeight++;
+   //    sendWidth++;
+   // }
+   // else if(srcOffsetRow==0 && srcOffsetColumn!=lastCol){
+   //    sendHeight++;
+   //    sendWidth+=2;
+   //    srcOffsetColumn--;
+   // }
+   // else if(srcOffsetRow==0 && srcOffsetColumn==lastCol){
+   //    sendHeight++;
+   //    sendWidth++;
+   //    srcOffsetColumn--;
+   // }
+   // else if(srcOffsetColumn==0 && srcOffsetRow == lastRow){
+   //    srcOffsetRow--;
+   //    sendHeight++;
+   //    sendWidth++;
+   // }
+   // else if(srcOffsetColumn==0 && srcOffsetRow != lastRow){
+   //    srcOffsetRow--;
+   //    sendHeight+=2;
+   //    sendWidth++;
+   // }
+   // else if(srcOffsetRow==lastRow && srcOffsetColumn!=lastCol){
+   //    sendWidth+=2;
+   //    sendHeight++;
+   //    srcOffsetColumn--;
+   //    srcOffsetRow--;
+   // }
+   // else if(srcOffsetColumn==lastCol && srcOffsetRow!=lastRow){
+   //    sendHeight+=2;
+   //    sendWidth++;
+   //    srcOffsetColumn--;
+   //    srcOffsetRow--;
+   // }
+   // else if(srcOffsetColumn==lastCol && srcOffsetRow==lastRow){
+   //    sendHeight++;
+   //    sendWidth++;
+   //    srcOffsetRow--;
+   //    srcOffsetColumn--;
+   // }
+   // else{
+   //    sendHeight+=2;
+   //    sendWidth+=2;
+   //    srcOffsetColumn--;
+   //    srcOffsetRow--;
+   // }
+
    int globalSize[2] = {srcHeight, srcWidth};
    int startOffset[2] = {srcOffsetRow, srcOffsetColumn};
    int subRegionSize[2] = {sendHeight, sendWidth};
-
+   
    MPI_Datatype subRegionType;
    MPI_Type_create_subarray(2, globalSize, subRegionSize, startOffset, MPI_ORDER_C, MPI_FLOAT, &subRegionType);
    MPI_Type_commit(&subRegionType);
@@ -415,6 +549,55 @@ recvStridedBuffer(float *dstBuf,
    // values. This incoming data is to be placed into the subregion of dstBuf that has an origin
    // at dstOffsetColumn, dstOffsetRow, and that is expectedWidth, expectedHeight in size.
    //
+   //  if(dstOffsetRow==0 && dstOffsetColumn==0){
+   //    expectedHeight++;
+   //    expectedWidth++;
+   // }
+   // else if(dstOffsetRow==0 && dstOffsetColumn!=lastCol){
+   //    expectedHeight++;
+   //    expectedWidth+=2;
+   //    dstOffsetColumn--;
+   // }
+   // else if(dstOffsetRow==0 && dstOffsetColumn==lastCol){
+   //    expectedHeight++;
+   //    expectedWidth++;
+   //    dstOffsetColumn--;
+   // }
+   // else if(dstOffsetColumn==0 && dstOffsetRow == lastRow){
+   //    dstOffsetRow--;
+   //    expectedHeight++;
+   //    expectedWidth++;
+   // }
+   // else if(dstOffsetColumn==0 && dstOffsetRow != lastRow){
+   //    dstOffsetRow--;
+   //    expectedHeight+=2;
+   //    expectedWidth++;
+   // }
+   // else if(dstOffsetRow==lastRow && dstOffsetColumn!=lastCol){
+   //    expectedWidth+=2;
+   //    expectedHeight++;
+   //    dstOffsetColumn--;
+   //    dstOffsetRow--;
+   // }
+   // else if(dstOffsetColumn==lastCol && dstOffsetRow!=lastRow){
+   //    expectedHeight+=2;
+   //    expectedWidth++;
+   //    dstOffsetColumn--;
+   //    dstOffsetRow--;
+   // }
+   // else if(dstOffsetColumn==lastCol && dstOffsetRow==lastRow){
+   //    expectedHeight++;
+   //    expectedWidth++;
+   //    dstOffsetRow--;
+   //    dstOffsetColumn--;
+   // }
+   // else{
+   //    expectedHeight+=2;
+   //    expectedWidth+=2;
+   //    dstOffsetColumn--;
+   //    dstOffsetRow--;
+   // }
+
    int globalSize[2] = {dstHeight, dstWidth};
    int startOffset[2] = {dstOffsetRow, dstOffsetColumn};
    int subRegionSize[2] = {expectedHeight, expectedWidth};
@@ -457,16 +640,16 @@ float sobel_filtered_pixel(float *s, int i, int j, int ncols, int nrows, float *
    return t;
 }
 
-void do_sobel_filtering(float *in, float *out, int ncols, int nrows)
+void do_sobel_filtering(float *in, float *out, int ncols, int nrows, int ghost_xmin, int ghost_ymin)
 {
    float Gx[] = {1.0, 0.0, -1.0, 2.0, 0.0, -2.0, 1.0, 0.0, -1.0};
    float Gy[] = {1.0, 2.0, 1.0, 0.0, 0.0, 0.0, -1.0, -2.0, -1.0};
 
    // ADD CODE HERE: insert your code here that iterates over every (i,j) of input,  makes a call
    // to sobel_filtered_pixel, and assigns the resulting value at location (i,j) in the output.
-   for(int i=0;i<nrows;i++){
-      for(int j=0;j<ncols;j++){
-         out[i*ncols+j] = sobel_filtered_pixel(in, i, j, ncols, nrows, Gx, Gy);
+   for(int i=ghost_ymin;i<nrows+ghost_ymin;i++){
+      for(int j=ghost_xmin;j<ncols+ghost_xmin;j++){
+         out[(i-ghost_ymin)*ncols+(j-ghost_xmin)] = sobel_filtered_pixel(in, i, j, ncols, nrows, Gx, Gy);
       }
    }
 }
@@ -493,8 +676,8 @@ sobelAllTiles(int myrank, vector < vector < Tile2D > > & tileArray) {
 #endif
          // ADD YOUR CODE HERE
          // to call your sobel filtering code on each tile
-
-         do_sobel_filtering(t->inputBuffer.data(), t->outputBuffer.data(), t->width, t->height);
+         
+         do_sobel_filtering(t->inputBuffer.data(), t->outputBuffer.data(), t->width, t->height, t->ghost_xmin, t->ghost_ymin);
          }
       }
    }
@@ -518,15 +701,15 @@ scatterAllTiles(int myrank, vector < vector < Tile2D > > & tileArray, float *s, 
             int fromRank=0;
 
             // receive a tile's buffer 
-            t->inputBuffer.resize(t->width*t->height);
+            t->inputBuffer.resize((t->width+t->ghost_xmin+t->ghost_xmax)*(t->height+t->ghost_ymin+t->ghost_ymax));
             t->outputBuffer.resize(t->width*t->height);
 #if DEBUG_TRACE
             printf("scatterAllTiles() receive side:: t->tileRank=%d, myrank=%d, t->inputBuffer->size()=%d, t->outputBuffersize()=%d \n", t->tileRank, myrank, t->inputBuffer.size(), t->outputBuffer.size());
 #endif
 
-            recvStridedBuffer(t->inputBuffer.data(), t->width, t->height,
+            recvStridedBuffer(t->inputBuffer.data(), t->width+t->ghost_xmin+t->ghost_xmax, t->height+t->ghost_ymin+t->ghost_ymax,
                   0, 0,  // offset into the tile buffer: we want the whole thing
-                  t->width, t->height, // how much data coming from this tile
+                  t->width+t->ghost_xmin+t->ghost_xmax, t->height+t->ghost_ymin+t->ghost_ymax, // how much data coming from this tile
                   fromRank, myrank); 
          }
          else if (myrank == 0)
@@ -538,21 +721,21 @@ scatterAllTiles(int myrank, vector < vector < Tile2D > > & tileArray, float *s, 
 
                sendStridedBuffer(s, // ptr to the buffer to send
                      global_width, global_height,  // size of the src buffer
-                     t->xloc, t->yloc, // offset into the send buffer
-                     t->width, t->height,  // size of the buffer to send,
+                     t->xloc-t->ghost_xmin, t->yloc-t->ghost_ymin, // offset into the send buffer
+                     t->width+t->ghost_xmax+t->ghost_xmin, t->height+t->ghost_ymin+t->ghost_ymax,  // size of the buffer to send,
                      myrank, t->tileRank);
             }
             else // rather then have rank 0 send to rank 0, just do a strided copy into a tile's input buffer
             {
-               t->inputBuffer.resize(t->width*t->height);
+               t->inputBuffer.resize((t->width+t->ghost_xmin+t->ghost_xmax)*(t->height+t->ghost_ymin+t->ghost_ymax));
                t->outputBuffer.resize(t->width*t->height);
 
                off_t s_offset=0, d_offset=0;
                float *d = t->inputBuffer.data();
 
-               for (int j=0;j<t->height;j++, s_offset+=global_width, d_offset+=t->width)
+               for (int j=0;j<(t->height+t->ghost_ymin+t->ghost_ymax);j++, s_offset+=global_width, d_offset+=(t->width+t->ghost_xmin+t->ghost_xmax))
                {
-                  memcpy((void *)(d+d_offset), (void *)(s+s_offset), sizeof(float)*t->width);
+                  memcpy((void *)(d+d_offset), (void *)(s+s_offset), sizeof(float)*(t->width+t->ghost_xmin+t->ghost_xmax));
                }
             }
          }
