@@ -455,9 +455,10 @@ void do_sobel_filtering(float *in, float *out, int ncols, int nrows)
 
    // ADD CODE HERE: insert your code here that iterates over every (i,j) of input,  makes a call
    // to sobel_filtered_pixel, and assigns the resulting value at location (i,j) in the output.
+   int dims[2] = {ncols, nrows}
    for(int i=0;i<nrows;i++){
       for(int j=0;j<ncols;j++){
-         out[i*ncols+j] = sobel_filtered_pixel(in, i, j, *ncols, *nrows, Gx, Gy);
+         out[i*ncols+j] = sobel_filtered_pixel(in, i, j, dims, Gx, Gy);
       }
    }
 }
