@@ -454,6 +454,7 @@ float sobel_filtered_pixel(float *s, int i, int j, int ncols, int nrows, float *
                  ((i - 1 >=0 && j + 1 <ncols)? s[i * ncols + j + 1 - ncols] * gy[2] : 0.0);
    
    t = sqrt((gradx*gradx) + (grady*grady));
+   return t;
 }
 
 void do_sobel_filtering(float *in, float *out, int ncols, int nrows)
