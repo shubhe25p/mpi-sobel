@@ -720,6 +720,15 @@ scatterAllTiles(int myrank, vector < vector < Tile2D > > & tileArray, float *s, 
                   0, 0,  // offset into the tile buffer: we want the whole thing
                   t->width+t->ghost_xmin+t->ghost_xmax, t->height+t->ghost_ymin+t->ghost_ymax, // how much data coming from this tile
                   fromRank, myrank); 
+            if(t->tileRank==1){
+               int count=0;
+               for(int i=0;i<(t->width+t->ghost_xmax+t->ghost_xmin);i++){
+                  printf("%f ", t->inputBuffer[i]);
+                  count++;
+               }
+               printf("\n");
+               printf("count=%d\n", count);
+            }
          }
          else if (myrank == 0)
          {
@@ -891,7 +900,7 @@ int main(int ac, char *av[]) {
       // start the timer
       start_time = std::chrono::high_resolution_clock::now();
 
-      sobelAllTiles(as.myrank, tileArray);
+      // sobelAllTiles(as.myrank, tileArray);
 
       // end the timer
       MPI_Barrier(MPI_COMM_WORLD);
@@ -913,7 +922,7 @@ int main(int ac, char *av[]) {
       // start the timer
       start_time = std::chrono::high_resolution_clock::now();
 
-      gatherAllTiles(as.myrank, tileArray, as.output_data_floats.data(), as.global_mesh_size[0], as.global_mesh_size[1]);
+      // gatherAllTiles(as.myrank, tileArray, as.output_data_floats.data(), as.global_mesh_size[0], as.global_mesh_size[1]);
 
       // end the timer
       MPI_Barrier(MPI_COMM_WORLD);
