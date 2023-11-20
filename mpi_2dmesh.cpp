@@ -530,13 +530,13 @@ scatterAllTiles(int myrank, vector < vector < Tile2D > > & tileArray, float *s, 
                   fromRank, myrank); 
              if(t->tileRank==1){
                int count=0;
-               printf("last second element first rank %f\n", t->inputBuffer[t->width-2]);
+               printf("last second element first rank %f at location %d and at width %d\n", t->inputBuffer[t->width-2], t->xloc, t->width-2);
                printf("\n");
                printf("last element first rank %f\n", t->inputBuffer[t->width-1]);
                printf("\n");
                printf("first element second rank %f\n", t->inputBuffer[t->width]);
                printf("\n");
-               printf("last second element first rank second rank %f\n", t->inputBuffer[t->width+global_width-2]);
+               printf("last second element first rank second rank %f at location %d and at width %d\n", t->inputBuffer[t->width+global_width-2], t->yloc*global_width+t->xloc, t->width+global_width-2);
                printf("\n");
                printf("last element first rank second row%f\n", t->inputBuffer[t->width+global_width-1]);
                printf("\n");
