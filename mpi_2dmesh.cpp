@@ -694,7 +694,7 @@ sobelAllTiles(int myrank, vector < vector < Tile2D > > & tileArray) {
             printf("%d\n", t->width+t->ghost_xmax+t->ghost_xmin);
             printf("%f\t %f\t\n %f\t %f\t\n", t->inputBuffer[0], t->inputBuffer[1], t->inputBuffer[t->width+1], t->inputBuffer[t->width+2]);
             printf("\n");
-            printf("%f\t %f\t %f\t\n %f\t %f\t %f\t\n ", t->inputBuffer[t->width-2], t->inputBuffer[t->width-1], t->inputBuffer[t.width], t->inputBuffer[t->width+t->width-1], t->inputBuffer[t->width+t->width], t->inputBuffer[t->width+t->width+1]);
+            printf("%f\t %f\t %f\t\n %f\t %f\t %f\t\n ", t->inputBuffer[t->width-2], t->inputBuffer[t->width-1], t->inputBuffer[t->width], t->inputBuffer[t->width+t->width-1], t->inputBuffer[t->width+t->width], t->inputBuffer[t->width+t->width+1]);
             do_sobel_filtering(t->inputBuffer.data(), t->outputBuffer.data(), t->width, t->height, t->ghost_xmin, t->ghost_ymin);
             printf("%f\t %f\t\n", t->outputBuffer[0], t->outputBuffer[t->width-1]);
          }
