@@ -493,7 +493,13 @@ sobelAllTiles(int myrank, vector < vector < Tile2D > > & tileArray) {
 #endif
          // ADD YOUR CODE HERE
          // to call your sobel filtering code on each tile
+         if(t->tileRank==0)
+         {
+            printf("%f\t %f\t\n %f\t %f\t\n", t->inputBuffer[0], t->inputBuffer[1], t->inputBuffer[t->width], t->inputBuffer[t->width+1]);
+            printf("\n");
+            printf("%f\t %f\t\n %f\t %f\t\n", t->inputBuffer[t->width-2], t->inputBuffer[t->width-1], t->inputBuffer[t->width+t->width-2], t->inputBuffer[t->width+t->width-1]);
 
+         }
          do_sobel_filtering(t->inputBuffer.data(), t->outputBuffer.data(), t->width, t->height);
          }
       }
@@ -528,21 +534,6 @@ scatterAllTiles(int myrank, vector < vector < Tile2D > > & tileArray, float *s, 
                   0, 0,  // offset into the tile buffer: we want the whole thing
                   t->width, t->height, // how much data coming from this tile
                   fromRank, myrank); 
-             if(t->tileRank==1){
-               int count=0;
-               printf("last second element first rank %f at location %d and at width %d\n", t->inputBuffer[t->width-2], t->xloc, t->width-2);
-               printf("\n");
-               printf("last element first rank %f\n", t->inputBuffer[t->width-1]);
-               printf("\n");
-               printf("first element second rank %f\n", t->inputBuffer[t->width]);
-               printf("\n");
-               printf("last second element first rank second rank %f at location %d and at width %d\n", t->inputBuffer[t->width+global_width-2], t->yloc*global_width+t->xloc, t->width+global_width-2);
-               printf("\n");
-               printf("last element first rank second row%f\n", t->inputBuffer[t->width+global_width-1]);
-               printf("\n");
-               printf("first element second rank second row %f\n", t->inputBuffer[t->width+global_width]);
-               printf("\n");
-            }
          }
          else if (myrank == 0)
          {
