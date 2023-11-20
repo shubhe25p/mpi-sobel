@@ -153,13 +153,13 @@ computeMeshDecomposition(AppState *as, vector < vector < Tile2D > > *tileArray) 
          int width =  as->global_mesh_size[0];
          int height = ylocs[i+1]-ylocs[i];
          int ghost_xmin, ghost_xmax, ghost_ymin, ghost_ymax;
-            if(j==0 && i==0){
+            if(i==0){
                ghost_xmin=0;
                ghost_xmax=0;
                ghost_ymin=0;
                ghost_ymax=1;
             }
-            else if(i==0 && j==(ytiles-1)){
+            else if(i==(ytiles-1)){
                ghost_xmin=0;
                ghost_xmax=0;
                ghost_ymin=1;
@@ -200,13 +200,13 @@ computeMeshDecomposition(AppState *as, vector < vector < Tile2D > > *tileArray) 
          int width =  xlocs[i+1]-xlocs[i];
          int height = as->global_mesh_size[1];
          int ghost_xmin, ghost_xmax, ghost_ymin, ghost_ymax;
-            if(j==0 && i==0){
+            if(i==0){
                ghost_xmin=0;
                ghost_xmax=1;
                ghost_ymin=0;
                ghost_ymax=0;
             }
-            else if(j==0 && i==(xtiles-1)){
+            else if(i==(xtiles-1)){
                ghost_xmin=1;
                ghost_xmax=0;
                ghost_ymin=0;
