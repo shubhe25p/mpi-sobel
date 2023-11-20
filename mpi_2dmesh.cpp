@@ -649,7 +649,7 @@ float sobel_filtered_pixel(float *s, int i, int j, int ncols, int nrows, float *
    return t;
 }
 
-void do_sobel_filtering(float *in, float *out, int ncols, int nrows, int ghost_xmin, int ghost_ymin)
+void do_sobel_filtering(float *in, float *out, int ncols, int nrows, int ghost_xmin, int ghost_ymin, int ghost_xmax, int ghost_ymax)
 {
    float Gx[] = {1.0, 0.0, -1.0, 2.0, 0.0, -2.0, 1.0, 0.0, -1.0};
    float Gy[] = {1.0, 2.0, 1.0, 0.0, 0.0, 0.0, -1.0, -2.0, -1.0};
@@ -658,7 +658,7 @@ void do_sobel_filtering(float *in, float *out, int ncols, int nrows, int ghost_x
    // to sobel_filtered_pixel, and assigns the resulting value at location (i,j) in the output.
    for(int i=ghost_ymin;i<nrows+ghost_ymin;i++){
       for(int j=ghost_xmin;j<ncols+ghost_xmin;j++){
-         out[(i-ghost_ymin)*ncols+(j-ghost_xmin)] = sobel_filtered_pixel(in, i, j, ncols, nrows, Gx, Gy);
+         out[(i-ghost_ymin)*ncols+(j-ghost_xmin)] = sobel_filtered_pixel(in, i, j, ncols+ghost_xmin+ghost_xmax, nrows+ghost_ymax+ghost_ymin, Gx, Gy);
       }
    }
 }
@@ -685,7 +685,7 @@ sobelAllTiles(int myrank, vector < vector < Tile2D > > & tileArray) {
 #endif
          // ADD YOUR CODE HERE
          // to call your sobel filtering code on each tile
-         do_sobel_filtering(t->inputBuffer.data(), t->outputBuffer.data(), t->width+t->ghost_xmin+t->ghost_xmax, t->height+t->ghost_ymin+t->ghost_ymax, t->ghost_xmin, t->ghost_ymin);
+         do_sobel_filtering(t->inputBuffer.data(), t->outputBuffer.data(), t->width, t->height, t->ghost_xmin, t->ghost_ymin, t->ghost_xmax, t->ghost_ymax);
           
          }
       }
