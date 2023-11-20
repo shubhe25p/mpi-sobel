@@ -533,8 +533,19 @@ scatterAllTiles(int myrank, vector < vector < Tile2D > > & tileArray, float *s, 
                printf("First element is %f\n", t->inputBuffer[0]);
                printf("\n");
                printf(t->inputBuffer[0],t->inputBuffer[1],t->inputBuffer[global_width],t->inputBuffer[global_width+1]);
+               printf("Second element is %f\n", t->inputBuffer[1]);
                printf("\n");
-               printf(t->inputBuffer[t->width-1], t->inputBuffer[t->width], t->inputBuffer[t->width+global_width-1], t->inputBuffer[t->width+global_width]);
+               printf("first element next row %f\n", t->inputBuffer[global_width]);
+               printf("\n");
+               printf("second element next row %f\n", t->inputBuffer[global_width+1]);
+               printf("\n");
+               printf("last element first rank %f\n", t->inputBuffer[t->width-1]);
+               printf("\n");
+               printf("first element second rank %f\n", t->inputBuffer[t->width]);
+               printf("\n");
+               printf("last element first rank second row%f\n", t->inputBuffer[t->width+global_width-1]);
+               printf("\n");
+               printf("first element second rank second row %f\n", t->inputBuffer[t->width+global_width]);
                printf("\n");
             }
          }
@@ -618,7 +629,7 @@ gatherAllTiles(int myrank, vector < vector < Tile2D > > & tileArray, float *d, i
                   int count=0;
                   printf("First element is %f\n", d[0]);
                   printf("\n");
-                  printf(d[0], d[t->width-1]);
+                  printf("last element is %f\n", d[t->width-1]);
                }
             }
             else // copy from a tile owned by rank 0 back into the main buffer
