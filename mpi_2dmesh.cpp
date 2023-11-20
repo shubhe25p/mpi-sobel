@@ -152,7 +152,26 @@ computeMeshDecomposition(AppState *as, vector < vector < Tile2D > > *tileArray) 
          vector < Tile2D > tiles;
          int width =  as->global_mesh_size[0];
          int height = ylocs[i+1]-ylocs[i];
+         int ghost_xmin, ghost_xmax, ghost_ymin, ghost_ymax;
+            if(j==0 && i==0){
+               ghost_xmin=0;
+               ghost_xmax=0;
+               ghost_ymin=0;
+               ghost_ymax=1;
+            }
+            else if(i==0 && j==(ytiles-1)){
+               ghost_xmin=0;
+               ghost_xmax=0;
+               ghost_ymin=1;
+               ghost_ymax=0;
 
+            }
+           else{
+               ghost_xmin=0;
+               ghost_xmax=0;
+               ghost_ymin=1;
+               ghost_ymax=1;
+            }
          Tile2D t = Tile2D(0, ylocs[i], width, height, i, ghost_xmin, ghost_xmax, ghost_ymin, ghost_ymax);
          tiles.push_back(t);
          tileArray->push_back(tiles);
@@ -176,14 +195,30 @@ computeMeshDecomposition(AppState *as, vector < vector < Tile2D > > *tileArray) 
 
       // then, create tiles along the x axis
       vector < Tile2D > tile_row;
-      int ghost_xmin = 0;
-      int ghost_xmax = 0;
-      int ghost_ymin = 0;
-      int ghost_ymax = 0;
       for (int i=0; i<xtiles; i++)
       {
          int width =  xlocs[i+1]-xlocs[i];
          int height = as->global_mesh_size[1];
+         int ghost_xmin, ghost_xmax, ghost_ymin, ghost_ymax;
+            if(j==0 && i==0){
+               ghost_xmin=0;
+               ghost_xmax=1;
+               ghost_ymin=0;
+               ghost_ymax=0;
+            }
+            else if(j==0 && i==(xtiles-1)){
+               ghost_xmin=1;
+               ghost_xmax=0;
+               ghost_ymin=0;
+               ghost_ymax=0;
+
+            }
+           else{
+               ghost_xmin=1;
+               ghost_xmax=1;
+               ghost_ymin=0;
+               ghost_ymax=0;
+            }
          Tile2D t = Tile2D(xlocs[i], 0, width, height, i, ghost_xmin, ghost_xmax, ghost_ymin, ghost_ymax);
          tile_row.push_back(t);
       }
@@ -236,9 +271,6 @@ computeMeshDecomposition(AppState *as, vector < vector < Tile2D > > *tileArray) 
                ghost_ymax=1;
             }
             else if(j==0 && i!=(xtiles-1)){
-               // sendHeight++;
-               // sendWidth+=2;
-               // xlocs[i]--;
                ghost_xmin=1;
                ghost_xmax=1;
                ghost_ymin=0;
@@ -246,67 +278,42 @@ computeMeshDecomposition(AppState *as, vector < vector < Tile2D > > *tileArray) 
 
             }
             else if(j==0 && i==(xtiles-1)){
-               // sendHeight++;
-               // sendWidth++;
-               // xlocs[i]--;
                ghost_xmin=1;
                ghost_xmax=0;
                ghost_ymin=0;
                ghost_ymax=1;
             }
             else if(i==0 && j==(ytiles-1)){
-               // ylocs[i]--;
-               // sendHeight++;
-               // sendWidth++;
                ghost_xmin=0;
                ghost_xmax=1;
                ghost_ymin=1;
                ghost_ymax=0;
             }
             else if(i==0 && j != (ytiles-1)){
-               // ylocs[i]--;
-               // sendHeight+=2;
-               // sendWidth++;
                ghost_xmin=0;
                ghost_xmax=1;
                ghost_ymin=1;
                ghost_ymax=1;
             }
             else if(j==(ytiles-1) && i!=(xtiles-1)){
-               // sendWidth+=2;
-               // sendHeight++;
-               // xlocs[i]--;
-               // ylocs[i]--;
                ghost_xmin=1;
                ghost_xmax=1;
                ghost_ymin=1;
                ghost_ymax=0;
             }
             else if(i==(xtiles-1) && j!=(ytiles-1)){
-               // sendHeight+=2;
-               // sendWidth++;
-               // xlocs[i]--;
-               // ylocs[i]--;
                ghost_xmin=1;
                ghost_xmax=0;
                ghost_ymin=1;
                ghost_ymax=1;
             }
             else if(i==(xtiles-1) && j==(ytiles-1)){
-               // sendHeight++;
-               // sendWidth++;
-               // ylocs[i]--;
-               // xlocs[i]--;
                ghost_xmin=1;
                ghost_xmax=0;
                ghost_ymin=1;
                ghost_ymax=0;
             }
             else{
-               // sendHeight+=2;
-               // sendWidth+=2;
-               // xlocs[i]--;
-               // ylocs[i]--;
                ghost_xmin=1;
                ghost_xmax=1;
                ghost_ymin=1;
@@ -477,56 +484,6 @@ sendStridedBuffer(float *srcBuf,
    // Your code needs to send a subregion of srcBuf, where the subregion is of size
    // sendWidth by sendHeight values, and the subregion is offset from the origin of
    // srcBuf by the values specificed by srcOffsetColumn, srcOffsetRow.
-   
-
-   // if(srcOffsetRow==0 && srcOffsetColumn==0){
-   //    sendHeight++;
-   //    sendWidth++;
-   // }
-   // else if(srcOffsetRow==0 && srcOffsetColumn!=lastCol){
-   //    sendHeight++;
-   //    sendWidth+=2;
-   //    srcOffsetColumn--;
-   // }
-   // else if(srcOffsetRow==0 && srcOffsetColumn==lastCol){
-   //    sendHeight++;
-   //    sendWidth++;
-   //    srcOffsetColumn--;
-   // }
-   // else if(srcOffsetColumn==0 && srcOffsetRow == lastRow){
-   //    srcOffsetRow--;
-   //    sendHeight++;
-   //    sendWidth++;
-   // }
-   // else if(srcOffsetColumn==0 && srcOffsetRow != lastRow){
-   //    srcOffsetRow--;
-   //    sendHeight+=2;
-   //    sendWidth++;
-   // }
-   // else if(srcOffsetRow==lastRow && srcOffsetColumn!=lastCol){
-   //    sendWidth+=2;
-   //    sendHeight++;
-   //    srcOffsetColumn--;
-   //    srcOffsetRow--;
-   // }
-   // else if(srcOffsetColumn==lastCol && srcOffsetRow!=lastRow){
-   //    sendHeight+=2;
-   //    sendWidth++;
-   //    srcOffsetColumn--;
-   //    srcOffsetRow--;
-   // }
-   // else if(srcOffsetColumn==lastCol && srcOffsetRow==lastRow){
-   //    sendHeight++;
-   //    sendWidth++;
-   //    srcOffsetRow--;
-   //    srcOffsetColumn--;
-   // }
-   // else{
-   //    sendHeight+=2;
-   //    sendWidth+=2;
-   //    srcOffsetColumn--;
-   //    srcOffsetRow--;
-   // }
 
    int globalSize[2] = {srcHeight, srcWidth};
    int startOffset[2] = {srcOffsetRow, srcOffsetColumn};
@@ -557,55 +514,6 @@ recvStridedBuffer(float *dstBuf,
    // "toRank". The size of the data that arrives will be of size expectedWidth by expectedHeight 
    // values. This incoming data is to be placed into the subregion of dstBuf that has an origin
    // at dstOffsetColumn, dstOffsetRow, and that is expectedWidth, expectedHeight in size.
-   //
-   //  if(dstOffsetRow==0 && dstOffsetColumn==0){
-   //    expectedHeight++;
-   //    expectedWidth++;
-   // }
-   // else if(dstOffsetRow==0 && dstOffsetColumn!=lastCol){
-   //    expectedHeight++;
-   //    expectedWidth+=2;
-   //    dstOffsetColumn--;
-   // }
-   // else if(dstOffsetRow==0 && dstOffsetColumn==lastCol){
-   //    expectedHeight++;
-   //    expectedWidth++;
-   //    dstOffsetColumn--;
-   // }
-   // else if(dstOffsetColumn==0 && dstOffsetRow == lastRow){
-   //    dstOffsetRow--;
-   //    expectedHeight++;
-   //    expectedWidth++;
-   // }
-   // else if(dstOffsetColumn==0 && dstOffsetRow != lastRow){
-   //    dstOffsetRow--;
-   //    expectedHeight+=2;
-   //    expectedWidth++;
-   // }
-   // else if(dstOffsetRow==lastRow && dstOffsetColumn!=lastCol){
-   //    expectedWidth+=2;
-   //    expectedHeight++;
-   //    dstOffsetColumn--;
-   //    dstOffsetRow--;
-   // }
-   // else if(dstOffsetColumn==lastCol && dstOffsetRow!=lastRow){
-   //    expectedHeight+=2;
-   //    expectedWidth++;
-   //    dstOffsetColumn--;
-   //    dstOffsetRow--;
-   // }
-   // else if(dstOffsetColumn==lastCol && dstOffsetRow==lastRow){
-   //    expectedHeight++;
-   //    expectedWidth++;
-   //    dstOffsetRow--;
-   //    dstOffsetColumn--;
-   // }
-   // else{
-   //    expectedHeight+=2;
-   //    expectedWidth+=2;
-   //    dstOffsetColumn--;
-   //    dstOffsetRow--;
-   // }
 
    int globalSize[2] = {dstHeight, dstWidth};
    int startOffset[2] = {dstOffsetRow, dstOffsetColumn};
