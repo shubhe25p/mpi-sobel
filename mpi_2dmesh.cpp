@@ -532,7 +532,6 @@ scatterAllTiles(int myrank, vector < vector < Tile2D > > & tileArray, float *s, 
                int count=0;
                printf("First element is %f\n", t->inputBuffer[0]);
                printf("\n");
-               printf(t->inputBuffer[0],t->inputBuffer[1],t->inputBuffer[global_width],t->inputBuffer[global_width+1]);
                printf("Second element is %f\n", t->inputBuffer[1]);
                printf("\n");
                printf("first element next row %f\n", t->inputBuffer[global_width]);
