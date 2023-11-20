@@ -656,9 +656,9 @@ void do_sobel_filtering(float *in, float *out, int ncols, int nrows, int ghost_x
 
    // ADD CODE HERE: insert your code here that iterates over every (i,j) of input,  makes a call
    // to sobel_filtered_pixel, and assigns the resulting value at location (i,j) in the output.
-   float temp1=sobel_filtered_pixel(in, 0, 0, ncols, nrows, Gx, Gy)
+   float temp1=sobel_filtered_pixel(in, 0, 0, ncols, nrows, Gx, Gy);
    printf(" Sobel at 0 0 = %f\n",temp1);
-   temp1=sobel_filtered_pixel(in, 0, 3555, ncols, nrows, Gx, Gy)
+   temp1=sobel_filtered_pixel(in, 0, 3555, ncols, nrows, Gx, Gy);
    printf("Sobel at 3555 0 = %f\n",temp1);
    for(int i=ghost_ymin;i<nrows+ghost_ymin;i++){
       for(int j=ghost_xmin;j<ncols+ghost_xmin;j++){
