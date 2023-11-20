@@ -656,6 +656,10 @@ void do_sobel_filtering(float *in, float *out, int ncols, int nrows, int ghost_x
 
    // ADD CODE HERE: insert your code here that iterates over every (i,j) of input,  makes a call
    // to sobel_filtered_pixel, and assigns the resulting value at location (i,j) in the output.
+   float temp1=sobel_filtered_pixel(in, 0, 0, ncols, nrows, Gx, Gy)
+   printf(" Sobel at 0 0 = %f\n",temp1);
+   temp1=sobel_filtered_pixel(in, 0, 3555, ncols, nrows, Gx, Gy)
+   printf("Sobel at 3555 0 = %f\n",temp1);
    for(int i=ghost_ymin;i<nrows+ghost_ymin;i++){
       for(int j=ghost_xmin;j<ncols+ghost_xmin;j++){
          out[(i-ghost_ymin)*ncols+(j-ghost_xmin)] = sobel_filtered_pixel(in, i, j, ncols, nrows, Gx, Gy);
@@ -685,8 +689,15 @@ sobelAllTiles(int myrank, vector < vector < Tile2D > > & tileArray) {
 #endif
          // ADD YOUR CODE HERE
          // to call your sobel filtering code on each tile
-         
-         do_sobel_filtering(t->inputBuffer.data(), t->outputBuffer.data(), t->width, t->height, t->ghost_xmin, t->ghost_ymin);
+         if(t->tileRank==0)
+         {
+            printf("%d\n", t->width+t->ghost_xmax+t->ghost_xmin);
+            printf("%f\t %f\t\n %f\t %f\t\n", t->inputBuffer[0], t->inputBuffer[1], t->inputBuffer[t->width+1], t->inputBuffer[t->width+2]);
+            printf("\n");
+            printf("%f\t %f\t %f\t\n %f\t %f\t %f\t\n ", t->inputBuffer[t->width-2], t->inputBuffer[t->width-1], t->inputBuffer[t.width], t->inputBuffer[t->width+t->width-1], t->inputBuffer[t->width+t->width], t->inputBuffer[t->width+t->width+1]);
+            do_sobel_filtering(t->inputBuffer.data(), t->outputBuffer.data(), t->width, t->height, t->ghost_xmin, t->ghost_ymin);
+            printf("%f\t %f\t\n", t->outputBuffer[0], t->outputBuffer[t->width-1]);
+         }
          }
       }
    }
@@ -720,15 +731,6 @@ scatterAllTiles(int myrank, vector < vector < Tile2D > > & tileArray, float *s, 
                   0, 0,  // offset into the tile buffer: we want the whole thing
                   t->width+t->ghost_xmin+t->ghost_xmax, t->height+t->ghost_ymin+t->ghost_ymax, // how much data coming from this tile
                   fromRank, myrank); 
-            if(t->tileRank==1){
-               int count=0;
-               for(int i=0;i<(t->width+t->ghost_xmax+t->ghost_xmin);i++){
-                  printf("%f ", t->inputBuffer[i]);
-                  count++;
-               }
-               printf("\n");
-               printf("count=%d\n", count);
-            }
          }
          else if (myrank == 0)
          {
