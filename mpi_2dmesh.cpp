@@ -528,6 +528,15 @@ scatterAllTiles(int myrank, vector < vector < Tile2D > > & tileArray, float *s, 
                   0, 0,  // offset into the tile buffer: we want the whole thing
                   t->width, t->height, // how much data coming from this tile
                   fromRank, myrank); 
+             if(t->tileRank==1){
+               int count=0;
+               printf("First element is %f\n", t->inputBuffer[0]);
+               printf("\n");
+               printf(t->inputBuffer[0],t->inputBuffer[1],t->inputBuffer[global_width],t->inputBuffer[global_width+1]);
+               printf("\n");
+               printf(t->inputBuffer[t->width-1], t->inputBuffer[t->width], t->inputBuffer[t->width+global_width-1], t->inputBuffer[t->width+global_width]);
+               printf("\n");
+            }
          }
          else if (myrank == 0)
          {
@@ -605,6 +614,12 @@ gatherAllTiles(int myrank, vector < vector < Tile2D > > & tileArray, float *d, i
                      t->xloc, t->yloc,  // offset of this tile
                      t->width, t->height, // how much data coming from this tile
                      t->tileRank, myrank); 
+               if(t->tileRank==1){
+                  int count=0;
+                  printf("First element is %f\n", d[0]);
+                  printf("\n");
+                  printf(d[0], d[t->width-1]);
+               }
             }
             else // copy from a tile owned by rank 0 back into the main buffer
             {
